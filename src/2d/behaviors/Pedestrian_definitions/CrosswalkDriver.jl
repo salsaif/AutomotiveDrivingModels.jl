@@ -26,7 +26,18 @@ function propagate(veh::Vehicle, action::LaneSpecificAccelLatLon, roadway::Roadw
 end
 
 
-
+function tracker(observed, measured)
+    for i in 1:length(observed)
+        observed[i].x = observed[i].x + observed[i].v*cos(ϕ)*dt
+        observed[i].y = observed[i].y + observed[i].v*sin(ϕ)*dt
+        rx = measured[i].x - observed[i].x
+        ry = measured[i].y - observed[i].y
+        rv = measured[i].v - observed[i].v
+        observed[i].x = observed[i].x + rx*α
+        observed[i].y = observed[i].y + ry*α
+        observed[i].v = observed[i].v + rv*(β/dt)
+    end
+end
 
 AutomotiveDrivingModels.get_name(model::CrosswalkDriver) = "CrosswalkDriver"
 function Base.rand(model::CrosswalkDriver)

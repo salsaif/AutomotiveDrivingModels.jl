@@ -2,11 +2,16 @@ type SimpleSensor
     pos_noise::Float64
     vel_noise::Float64
 end
-
+# add observation structure
+# type Observation
+#
+#
+# end
 type CrosswalkEnv
     roadway::Roadway
     crosswalk::Lane
     sensormodel::SimpleSensor
+    # add observation holder
 end
 
 function AutoViz.render!(rendermodel::RenderModel, env::CrosswalkEnv)
