@@ -45,3 +45,7 @@ function measure(ego::VehicleState, scene::Scene, model::SimpleSensor, env::Cros
     end
     return observed
 end
+
+function propagate{D<:Union{VehicleDef, BicycleModel}}(veh::Entity{VehicleState, D, Int}, action::LatLonAccel, env::CrosswalkEnv, ΔT::Float64)
+    probagate(veh,action,env.roadway,ΔT)
+end
