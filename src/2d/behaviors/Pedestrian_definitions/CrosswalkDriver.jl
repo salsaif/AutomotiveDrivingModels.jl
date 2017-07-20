@@ -19,7 +19,7 @@ end
 
 function propagate(veh::Vehicle, action::LaneSpecificAccelLatLon, roadway::Roadway, Δt::Float64)
     lane_tag_orig = veh.state.posF.roadind.tag
-    state = AutomotiveDrivingModels.propagate(veh, LatLonAccel(action.a_lat, action.a_lon), roadway, Δt)
+    state = propagate(veh, LatLonAccel(action.a_lat, action.a_lon), roadway, Δt)
     roadproj = proj(state.posG, roadway[lane_tag_orig], roadway, move_along_curves=false)
     retval = VehicleState(Frenet(roadproj, roadway), roadway, state.v)
     return retval
