@@ -14,20 +14,7 @@ type CrosswalkEnv
     # add observation holder
 end
 
-function AutoViz.render!(rendermodel::RenderModel, env::CrosswalkEnv)
-    render!(rendermodel, env.roadway)
 
-    curve = env.crosswalk.curve
-    n = length(curve)
-    pts = Array(Float64, 2, n)
-    for (i,pt) in enumerate(curve)
-        pts[1,i] = pt.pos.x
-        pts[2,i] = pt.pos.y
-    end
-
-    add_instruction!(rendermodel, render_dashed_line, (pts, colorant"white", env.crosswalk.width, 1.0, 1.0, 0.0, Cairo.CAIRO_LINE_CAP_BUTT))
-    return rendermodel
-end
 
 function measure(ego::VehicleState, scene::Scene, model::SimpleSensor, env::CrosswalkEnv)
     observed = Vehicle[] # sizehint!(Vector{Vehicle(0)}, 5)
@@ -44,8 +31,4 @@ function measure(ego::VehicleState, scene::Scene, model::SimpleSensor, env::Cros
 #         end
     end
     return observed
-end
-
-function propagate{D<:Union{VehicleDef, BicycleModel}}(veh::Entity{VehicleState, D, Int}, action::LatLonAccel, env::CrosswalkEnv, ΔT::Float64)
-    probagate(veh,action,env.roadway,ΔT)
 end
