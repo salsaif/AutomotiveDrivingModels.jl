@@ -37,41 +37,27 @@ function track_longitudinal!(driver::LaneFollowingDriver, scene::Scene, roadway:
     end
     return track_longitudinal!(driver, v_ego, v_oth, headway)
 end
-function observe!(driver::Tim2DDriver, scene::Scene, env::CrosswalkEnv, egoid::Int)
+function observe!(driver::Tim2DDriver, scene::Scene, roadway::Roadway, egoid::Int)
 
-    AutomotiveDrivingModels.update!(driver.rec, scene)
-    AutomotiveDrivingModels.observe!(driver.mlane, scene, env.roadway, egoid)
+    update!(driver.rec, scene)
+    observe!(driver.mlane, scene, roadway, egoid)
+
     vehicle_index = findfirst(scene, egoid)
     lane_change_action = rand(driver.mlane)
-    laneoffset = get_lane_offset(lane_change_action, driver.rec, env.roadway, vehicle_index)
-    lateral_speed = convert(Float64, get(VELFT, driver.rec, env.roadway, vehicle_index))
+    laneoffset = get_lane_offset(lane_change_action, driver.rec, roadway, vehicle_index)
+    lateral_speed = convert(Float64, get(VELFT, driver.rec, roadway, vehicle_index))
 
     if lane_change_action.dir == DIR_MIDDLE
-        fore = get_neighbor_fore_along_lane(scene, vehicle_index, env.roadway, VehicleTargetPointFront(), VehicleTargetPointRear(), VehicleTargetPointFront())
+        fore = get_neighbor_fore_along_lane(scene, vehicle_index, roadway, VehicleTargetPointFront(), VehicleTargetPointRear(), VehicleTargetPointFront())
     elseif lane_change_action.dir == DIR_LEFT
-        fore = get_neighbor_fore_along_left_lane(scene, vehicle_index, env.roadway, VehicleTargetPointFront(), VehicleTargetPointRear(), VehicleTargetPointFront())
+        fore = get_neighbor_fore_along_left_lane(scene, vehicle_index, roadway, VehicleTargetPointFront(), VehicleTargetPointRear(), VehicleTargetPointFront())
     else
         @assert(lane_change_action.dir == DIR_RIGHT)
-        fore = get_neighbor_fore_along_right_lane(scene, vehicle_index, env.roadway, VehicleTargetPointFront(), VehicleTargetPointRear(), VehicleTargetPointFront())
+        fore = get_neighbor_fore_along_right_lane(scene, vehicle_index, roadway, VehicleTargetPointFront(), VehicleTargetPointRear(), VehicleTargetPointFront())
     end
 
-    AutomotiveDrivingModels.track_lateral!(driver.mlat, laneoffset, lateral_speed)
-#     AutomotiveDrivingModels.track_longitudinal!(driver.mlon, scene, env.roadway, vehicle_index, fore)
-
-    if scene[egoid].state.posG.x < 0          ### If the vehicle has not yet crossed the crosswalk
-        observed = measure(scene[egoid].state, scene, env.sensormodel, env)
-        v_oth = NaN
-        for ped in observed
-            loc = ped.state.posG
-            if loc.x > -0.5*DEFAULT_LANE_WIDTH && loc.x < 1.5*DEFAULT_LANE_WIDTH && abs(loc.y) < 1
-                v_oth = 0.0
-                break
-            end
-        end
-        v_ego = scene[egoid].state.v
-
-        AutomotiveDrivingModels.track_longitudinal!(driver.mlon, v_ego, v_oth, 0.05)
-    end
+    track_lateral!(driver.mlat, laneoffset, lateral_speed)
+    track_longitudinal!(driver.mlon, scene, roadway, vehicle_index, fore)
 
     driver
 end

@@ -44,9 +44,7 @@ function propagate{D<:Union{VehicleDef, BicycleModel}}(veh::Entity{VehicleState,
 
     return VehicleState(posG, roadway, v₂)
 end
-function propagate{D<:Union{VehicleDef, BicycleModel}}(veh::Entity{VehicleState, D, Int}, action::LatLonAccel, env::CrosswalkEnv, ΔT::Float64)
-    probagate(veh,action,env.roadway,ΔT)
-end
+
 function Base.get(::Type{LatLonAccel}, rec::SceneRecord, roadway::Roadway, vehicle_index::Int, pastframe::Int=0)
     accel_lat = get(ACCFT, rec, roadway, vehicle_index, pastframe)
     accel_lon = get(ACCFS, rec, roadway, vehicle_index, pastframe)
