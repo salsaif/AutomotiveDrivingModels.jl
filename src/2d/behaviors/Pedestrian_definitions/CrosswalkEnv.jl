@@ -11,7 +11,7 @@ type CrosswalkEnv
     roadway::Roadway
     crosswalk::Lane
     sensormodel::SimpleSensor
-    # add observation holder
+    Observation::Array{Any,1}
 end
 
 
@@ -32,7 +32,7 @@ function measure(ego::VehicleState, scene::Scene, model::SimpleSensor, env::Cros
     end
     return observed
 end
-function observe!(driver::Tim2DDriver, scene::Scene, env::CrosswalkEnv, egoid::Int)
+function observe!(driver::DriverModel{LatLonAccel}, scene::Scene, env::CrosswalkEnv, egoid::Int)
 
     AutomotiveDrivingModels.update!(driver.rec, scene)
     AutomotiveDrivingModels.observe!(driver.mlane, scene, env.roadway, egoid)
@@ -54,7 +54,8 @@ function observe!(driver::Tim2DDriver, scene::Scene, env::CrosswalkEnv, egoid::I
 #     AutomotiveDrivingModels.track_longitudinal!(driver.mlon, scene, env.roadway, vehicle_index, fore)
 
     if scene[egoid].state.posG.x < 0          ### If the vehicle has not yet crossed the crosswalk
-        observed = measure(scene[egoid].state, scene, env.sensormodel, env)
+        measured = measure(scene[egoid].state, scene, env.sensormodel, env)
+        tracker!(env,measured)
         v_oth = NaN
         for ped in observed
             loc = ped.state.posG
@@ -75,7 +76,7 @@ function propagate{D<:Union{VehicleDef, BicycleModel}}(veh::Entity{VehicleState,
     probagate(veh,action,env.roadway,ΔT)
 end
 
-function get_actions!{S,D,I,A,R,M<:DriverModel}(
+function get_actions!{S,D,I,A,M<:DriverModel}(
     actions::Vector{A},
     scene::EntityFrame{S,D,I},
     env::CrosswalkEnv,
@@ -91,7 +92,7 @@ function get_actions!{S,D,I,A,R,M<:DriverModel}(
     actions
 end
 
-  function tick!{S,D,I,A,R}(
+  function tick!{S,D,I,A}(
     scene::EntityFrame{S,D,I},
     env::CrosswalkEnv,
     actions::Vector{A},
@@ -100,7 +101,7 @@ end
     tick!(scene, env.roadway, actions, ΔT)
   end
 
-  function simulate!{S,D,I,A,R,M<:DriverModel}(
+  function simulate!{S,D,I,A,M<:DriverModel}(
     ::Type{A},
     rec::EntityQueueRecord{S,D,I},
     scene::EntityFrame{S,D,I},
