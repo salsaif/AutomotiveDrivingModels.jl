@@ -25,21 +25,21 @@ function propagate(veh::Vehicle, action::LaneSpecificAccelLatLon, roadway::Roadw
     return retval
 end
 
-
-# function tracker!(env, measured)
-#     for i in 1:length(env.observed)
-#         x_hat = env.observed[i].posG.x + env.observed[i].v*cos(ϕ)*dt
-#         y_hat = env.observed[i].posG.y + env.observed[i].v*sin(ϕ)*dt
-#         rx = measured[i].x - x_hat
-#         ry = measured[i].y - y_hat
-#         rv = measured[i].v - env.observed[i].v
-#         x_hat = x_hat + rx*α
-#         y_hat = y_hat + ry*α
-#         v_hat = env.observed[i].v + rv*(β/dt)
-          env.observed[i] = Vehicle(VehicleState(VecSE2(x_hat,y_hat,π/2), env.crosswalk, cw_roadway, v_hat)
-#     end
-      return env
-# end
+# Check which to use, posG.Θ or posF.ϕ
+function tracker!(env, measured)
+    for i in 1:length(env.observed)
+        x_hat = env.observed[i].state.posG.x + env.observed[i].v*cos(env.observed[i].state.posF.ϕ)*dt
+        y_hat = env.observed[i].state.posG.y + env.observed[i].v*sin(env.observed[i].state.posF.ϕ)*dt
+        rx = measured[i].state.posG.x - x_hat
+        ry = measured[i].state.posG.y - y_hat
+        rv = measured[i].v - env.observed[i].v
+        x_hat = x_hat + rx*α
+        y_hat = y_hat + ry*α
+        v_hat = env.observed[i].v + rv*(β/dt)
+        env.observed[i] = Vehicle(VehicleState(VecSE2(x_hat,y_hat,env.observed[i].state.posF.ϕ), env.crosswalk, cw_roadway, v_hat))
+    end
+    return env
+end
 
 AutomotiveDrivingModels.get_name(model::CrosswalkDriver) = "CrosswalkDriver"
 function Base.rand(model::CrosswalkDriver)

@@ -11,13 +11,13 @@ type CrosswalkEnv
     roadway::Roadway
     crosswalk::Lane
     sensormodel::SimpleSensor
-    Observation::Array{Any,1}
+    observed::Array{Any,1}
 end
 
 
 
 function measure(ego::VehicleState, scene::Scene, model::SimpleSensor, env::CrosswalkEnv)
-    observed = Vehicle[] # sizehint!(Vector{Vehicle(0)}, 5)
+    measured = Vehicle[] # sizehint!(Vector{Vehicle(0)}, 5)
     for i in 2:scene.n
         veh = scene[i]
         car = veh.state
@@ -27,10 +27,10 @@ function measure(ego::VehicleState, scene::Scene, model::SimpleSensor, env::Cros
                                                   car.posG.θ),
                                                   env.roadway,
                                                    car.v + model.vel_noise*randn())
-        push!(observed, Vehicle(obs_state, veh.def, veh.id))
+        push!(measured, Vehicle(obs_state, veh.def, veh.id))
 #         end
     end
-    return observed
+    return measured
 end
 function observe!(driver::DriverModel{LatLonAccel}, scene::Scene, env::CrosswalkEnv, egoid::Int)
 
@@ -57,7 +57,7 @@ function observe!(driver::DriverModel{LatLonAccel}, scene::Scene, env::Crosswalk
         measured = measure(scene[egoid].state, scene, env.sensormodel, env)
         tracker!(env,measured)
         v_oth = NaN
-        for ped in observed
+        for ped in env.observed
             loc = ped.state.posG
             if loc.x > -0.5*DEFAULT_LANE_WIDTH && loc.x < 1.5*DEFAULT_LANE_WIDTH && abs(loc.y) < 1
                 v_oth = 0.0
