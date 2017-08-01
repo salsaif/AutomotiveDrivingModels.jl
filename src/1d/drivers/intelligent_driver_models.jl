@@ -9,7 +9,7 @@ Commonly referred to as IDM
 
     δ::Float64 = 4.0 # acceleration exponent [-]
     T::Float64  = 1.5 # desired time headway [s]
-    v_des::Float64 = 29.0 # desired speed [m/s]
+    v_des::Float64 = 11.4 # desired speed [m/s]
     s_min::Float64 = 5.0 # minimum acceptable gap [m]
     a_max::Float64 = 3.0 # maximum acceleration ability [m/s²]
     d_cmf::Float64 = 2.0 # comfortable deceleration [m/s²] (positive)
@@ -21,7 +21,6 @@ function set_desired_speed!(model::IntelligentDriverModel, v_des::Float64)
     model
 end
 function track_longitudinal!(model::IntelligentDriverModel, v_ego::Float64, v_oth::Float64, headway::Float64)
-
     if !isnan(v_oth)
         @assert !isnan(headway) && headway > 0
 

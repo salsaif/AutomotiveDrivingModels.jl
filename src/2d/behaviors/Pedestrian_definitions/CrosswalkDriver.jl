@@ -27,16 +27,20 @@ end
 
 # Check which to use, posG.Θ or posF.ϕ
 function tracker!(env, measured)
+    dt = 0.1
+    α = 0.85
+    β = 0.005
+    cw_roadway = Roadway([RoadSegment(2, [env.crosswalk])])
     for i in 1:length(env.observed)
-        x_hat = env.observed[i].state.posG.x + env.observed[i].v*cos(env.observed[i].state.posF.ϕ)*dt
-        y_hat = env.observed[i].state.posG.y + env.observed[i].v*sin(env.observed[i].state.posF.ϕ)*dt
+        x_hat = env.observed[i].state.posG.x + env.observed[i].state.v*sin(env.observed[i].state.posF.ϕ)*dt
+        y_hat = env.observed[i].state.posG.y + env.observed[i].state.v*cos(env.observed[i].state.posF.ϕ)*dt
         rx = measured[i].state.posG.x - x_hat
         ry = measured[i].state.posG.y - y_hat
-        rv = measured[i].v - env.observed[i].v
+        rv = measured[i].state.v - env.observed[i].state.v
         x_hat = x_hat + rx*α
         y_hat = y_hat + ry*α
-        v_hat = env.observed[i].v + rv*(β/dt)
-        env.observed[i] = Vehicle(VehicleState(VecSE2(x_hat,y_hat,env.observed[i].state.posF.ϕ), env.crosswalk, cw_roadway, v_hat))
+        v_hat = env.observed[i].state.v + rv*(β/dt)
+        env.observed[i] = Vehicle(VehicleState(VecSE2(x_hat,y_hat,env.observed[i].state.posF.ϕ), env.crosswalk, cw_roadway, v_hat), measured[i].def, measured[i].id)
     end
     return env
 end
