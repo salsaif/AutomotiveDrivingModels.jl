@@ -21,20 +21,20 @@ function measure(ego::VehicleState, scene::Scene, model::SimpleSensor, env::Cros
         rand1 = randn()
         rand2 = randn()
         rand3 = randn()
-        model.likelihood = abs(rand1)+abs(rand2)+abs(rand3)
+        rand4 = randn()
+        model.likelihood = abs(rand1)+abs(rand2)+abs(rand3)+abs(rand4)
 #         if is_observable(car, ego, cars, env) # needed if obstacles exist
         obs_state = VehicleState(VecSE2(car.posG.x + model.pos_noise*rand1,
                                                   car.posG.y + model.pos_noise*rand2,
-                                                  car.posG.θ),
+                                                  car.posG.θ + model.pos_noise*rand3),
                                                   env.roadway,
-                                                   car.v + model.vel_noise*rand3)
+                                                   car.v + model.vel_noise*rand4)
         push!(measured, Vehicle(obs_state, veh.def, veh.id))
 #         end
     end
     return measured
 end
 function observe!(driver::DriverModel{LatLonAccel}, scene::Scene, env::CrosswalkEnv, egoid::Int)
-
     update!(driver.rec, scene)
     observe!(driver.mlane, scene, env.roadway, egoid)
     vehicle_index = findfirst(scene, egoid)
@@ -52,13 +52,12 @@ function observe!(driver::DriverModel{LatLonAccel}, scene::Scene, env::Crosswalk
     end
 
     track_lateral!(driver.mlat, laneoffset, lateral_speed)
-#     AutomotiveDrivingModels.track_longitudinal!(driver.mlon, scene, env.roadway, vehicle_index, fore)
+    # track_longitudinal!(driver.mlon, scene, env.roadway, vehicle_index, fore)
 
-    if scene[egoid].state.posG.x < 0          ### If the vehicle has not yet crossed the crosswalk
+    if scene[egoid].state.posG.x < 0.0          ### If the vehicle has not yet crossed the crosswalk
         measured = measure(scene[egoid].state, scene, env.sensormodel, env)
         tracker!(env,measured)
         v_oth = NaN
-
         for ped in env.observed
             loc = ped.state.posG
             if loc.y > -0.5*DEFAULT_LANE_WIDTH && loc.y < 1.5*DEFAULT_LANE_WIDTH
@@ -66,7 +65,6 @@ function observe!(driver::DriverModel{LatLonAccel}, scene::Scene, env::Crosswalk
             end
         end
         v_ego = scene[egoid].state.v
-
         track_longitudinal!(driver.mlon, v_ego, v_oth, -scene[egoid].state.posG.x)
     end
 

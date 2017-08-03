@@ -10,7 +10,7 @@ Commonly referred to as IDM
     δ::Float64 = 4.0 # acceleration exponent [-]
     T::Float64  = 1.5 # desired time headway [s]
     v_des::Float64 = 11.4 # desired speed [m/s]
-    s_min::Float64 = 5.0 # minimum acceptable gap [m]
+    s_min::Float64 = 4.0 # minimum acceptable gap [m]
     a_max::Float64 = 3.0 # maximum acceleration ability [m/s²]
     d_cmf::Float64 = 2.0 # comfortable deceleration [m/s²] (positive)
     d_max::Float64 = 9.0 # maximum decelleration [m/s²] (positive)
