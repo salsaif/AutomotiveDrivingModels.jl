@@ -22,7 +22,7 @@ function measure(ego::VehicleState, scene::Scene, model::SimpleSensor, env::Cros
         rand2 = randn()
         rand3 = randn()
         rand4 = randn()
-        model.likelihood = rand1^2+rand2^2+rand3^2+rand4^2
+        model.likelihood = (rand1^2+rand2^2+rand3^2)/model.pos_noise + rand4^2/model.vel_noise # parametrize this
 #         if is_observable(car, ego, cars, env) # needed if obstacles exist
         obs_state = VehicleState(VecSE2(car.posG.x + model.pos_noise*rand1,
                                                   car.posG.y + model.pos_noise*rand2,
@@ -58,14 +58,22 @@ function observe!(driver::DriverModel{LatLonAccel}, scene::Scene, env::Crosswalk
         measured = measure(scene[egoid].state, scene, env.sensormodel, env)
         tracker!(env,measured)
         v_oth = NaN
+        min_dist = -Inf
+        headway = Inf
         for ped in env.observed
             loc = ped.state.posG
             if loc.y > -0.5*DEFAULT_LANE_WIDTH && loc.y < 1.5*DEFAULT_LANE_WIDTH
-                v_oth = ped.state.v*sin(ped.state.posF.ϕ)
+                v_oth = ped.state.v*cos(ped.state.posG.θ)
+                dist = dist(convert(VecE2, scene[egoid].state.posG), convert(VecE2, ped.state.posG)
+                if dist < min_dist
+                    min_dist = dist
+                    headway = ped.state.posG.x - scene[egoid].state.posG.x
             end
         end
         v_ego = scene[egoid].state.v
-        track_longitudinal!(driver.mlon, v_ego, v_oth, -scene[egoid].state.posG.x)
+        track_longitudinal!(driver.mlon, v_ego, v_oth, headway)
+    else
+        track_longitudinal!(driver.mlon, scene, env.roadway, vehicle_index, fore)
     end
 
     driver
