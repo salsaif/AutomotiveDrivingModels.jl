@@ -1,3 +1,4 @@
+using Vec
 type SimpleSensor
     pos_noise::Float64
     vel_noise::Float64
@@ -64,10 +65,11 @@ function observe!(driver::DriverModel{LatLonAccel}, scene::Scene, env::Crosswalk
             loc = ped.state.posG
             if loc.y > -0.5*DEFAULT_LANE_WIDTH && loc.y < 1.5*DEFAULT_LANE_WIDTH
                 v_oth = ped.state.v*cos(ped.state.posG.θ)
-                dist = dist(convert(VecE2, scene[egoid].state.posG), convert(VecE2, ped.state.posG)
-                if dist < min_dist
-                    min_dist = dist
+                distance = dist(convert(VecE2, scene[egoid].state.posG), convert(VecE2, ped.state.posG))
+                if distance < min_dist
+                    min_dist = distance
                     headway = ped.state.posG.x - scene[egoid].state.posG.x
+                end
             end
         end
         v_ego = scene[egoid].state.v
