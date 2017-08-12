@@ -59,7 +59,7 @@ function observe!(driver::DriverModel{LatLonAccel}, scene::Scene, env::Crosswalk
         measured = measure(scene[egoid].state, scene, env.sensormodel, env)
         tracker!(env,measured)
         v_oth = NaN
-        min_dist = -Inf
+        min_dist = Inf
         headway = Inf
         for ped in env.observed
             loc = ped.state.posG
