@@ -22,7 +22,7 @@ function set_desired_speed!(model::IntelligentDriverModel, v_des::Float64)
 end
 function track_longitudinal!(model::IntelligentDriverModel, v_ego::Float64, v_oth::Float64, headway::Float64)
     if !isnan(v_oth)
-        @assert !isnan(headway) && headway > 0
+        # @assert !isnan(headway) && headway > 0
 
         Δv = v_oth - v_ego
         s_des = model.s_min + v_ego*model.T - v_ego*Δv / (2*sqrt(model.a_max*model.d_cmf))
