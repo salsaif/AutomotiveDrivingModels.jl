@@ -16,6 +16,7 @@ end
 
 function measure(ego::VehicleState, scene::Scene, model::SimpleSensor, env::CrosswalkEnv)
     measured = Vehicle[] # sizehint!(Vector{Vehicle(0)}, 5)
+    model.likelihood = 0
     for i in 2:scene.n
         veh = scene[i]
         car = veh.state
