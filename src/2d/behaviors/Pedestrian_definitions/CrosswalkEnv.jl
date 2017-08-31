@@ -24,13 +24,15 @@ function measure(ego::VehicleState, scene::Scene, model::SimpleSensor, env::Cros
         rand2 = randn()
         rand3 = randn()
         rand4 = randn()
-        model.likelihood = (rand1^2+rand2^2+rand3^2)/model.pos_noise + rand4^2/model.vel_noise # parametrize this
+        model.likelihood = (rand1^2+rand2^2+rand3^2)/model.pos_noise + rand4^2/model.vel_noise
 #         if is_observable(car, ego, cars, env) # needed if obstacles exist
+        vx = car.v*cos(car.posG.θ) + model.pos_noise*rand3
+        vy = car.v*sin(car.posG.θ) + model.vel_noise*rand4
         obs_state = VehicleState(VecSE2(car.posG.x + model.pos_noise*rand1,
                                                   car.posG.y + model.pos_noise*rand2,
-                                                  car.posG.θ + model.pos_noise*rand3),
+                                                  atan2(vy,vx)),
                                                   env.roadway,
-                                                   car.v + model.vel_noise*rand4)
+                                                  sqrt(vx^2+vy^2))
         push!(measured, Vehicle(obs_state, veh.def, veh.id))
 #         end
     end
