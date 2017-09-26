@@ -10,6 +10,7 @@ type CrosswalkEnv
     crosswalk::Lane
     sensormodel::SimpleSensor
     observed::Array{Any,1}
+    noise::Array{Any,1}
 end
 
 
@@ -21,9 +22,13 @@ function measure(ego::VehicleState, scene::Scene, model::SimpleSensor, env::Cros
         veh = scene[i]
         car = veh.state
         rand1 = randn()
+        append!(env.noise, rand1)
         rand2 = randn()
+        append!(env.noise, rand2)
         rand3 = randn()
+        append!(env.noise, rand3)
         rand4 = randn()
+        append!(env.noise, rand4)
         model.likelihood = (rand1^2+rand2^2+rand3^2)/model.pos_noise + rand4^2/model.vel_noise
 #         if is_observable(car, ego, cars, env) # needed if obstacles exist
         vx = car.v*cos(car.posG.θ) + model.pos_noise*rand3
