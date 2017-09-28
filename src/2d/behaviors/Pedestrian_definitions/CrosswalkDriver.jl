@@ -52,7 +52,7 @@ function Base.rand(model::CrosswalkDriver)
     if any(isnan, model.σ) || any(x -> x<0,model.σ)
         model.a
     else
-        temp = rand(MvNormal([model.a.a_lat, model.a.a_lon], [model.σ[1] 0.0;0.0 model.σ[2]]))
+        temp = rand(MvNormal([0.0, 0.0], [model.σ[1] 0.0;0.0 model.σ[2]]))
         LaneSpecificAccelLatLon(temp[1],temp[2])
     end
 end
