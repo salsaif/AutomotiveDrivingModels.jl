@@ -56,9 +56,9 @@ function Base.rand(model::CrosswalkDriver)
         LaneSpecificAccelLatLon(temp[1],temp[2])
     end
 end
-Distributions.pdf(model::CrosswalkDriver, a::LaneSpecificAccelLatLon) = pdf(MvNormal([model.a.a_lat,model.a.a_lon],
+Distributions.pdf(model::CrosswalkDriver, a::LaneSpecificAccelLatLon) = pdf(MvNormal([0.0,0.0],
                                                                                       [model.σ[1] 0.0;0.0 model.σ[2]]),
                                                                                         [a.a_lat, a.a_lon])
-Distributions.sqmahal(model::CrosswalkDriver, a::LaneSpecificAccelLatLon) = sqmahal(MvNormal([model.a.a_lat,model.a.a_lon],
+Distributions.sqmahal(model::CrosswalkDriver, a::LaneSpecificAccelLatLon) = sqmahal(MvNormal([0.0,0.0],
                                                                                       [model.σ[1] 0.0;0.0 model.σ[2]]),
                                                                                         [a.a_lat, a.a_lon])
